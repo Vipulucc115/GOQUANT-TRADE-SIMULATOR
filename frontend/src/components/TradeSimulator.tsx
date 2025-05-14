@@ -38,13 +38,33 @@ const TradeSimulator: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${config.apiUrl}/simulate?quantity_usd=${quantity}&order_type=${orderType}&volume_30d=${volume30d}&exchange=${exchange}&asset=${asset}`);
+      const url = `${config.apiUrl}simulate?quantity_usd=${quantity}&order_type=${orderType}&volume_30d=${volume30d}&exchange=${exchange}&asset=${asset}`;
+      console.log('Fetching from URL:', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+      });
+
       if (!response.ok) {
-        throw new Error('Simulation failed');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error occurred' }));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
+
       const data = await response.json();
+      console.log('Received data:', data);
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
       setResult(data);
     } catch (err) {
+      console.error('Error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);

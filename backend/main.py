@@ -6,6 +6,7 @@ from utils.websocket_client import connect_to_orderbook
 from simulator import simulate_market_order
 from typing import Literal
 import os
+from fastapi.responses import JSONResponse
 
 app = FastAPI(
     title="GoQuant Trade Simulator",
@@ -13,10 +14,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Add CORS middleware with more permissive settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://*.vercel.app", "http://localhost:5173"],
+    allow_origins=["*"],  # Allow all origins in development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,5 +53,12 @@ async def run_simulation(
     - Volatility
     - Optimal Execution Schedule
     """
-    result = await simulate_market_order(quantity_usd, order_type, volume_30d, exchange, asset)
-    return result
+    try:
+        result = await simulate_market_order(quantity_usd, order_type, volume_30d, exchange, asset)
+        return result
+    except Exception as e:
+        logger.error(f"Error in simulation: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Simulation failed: {str(e)}"}
+        )
