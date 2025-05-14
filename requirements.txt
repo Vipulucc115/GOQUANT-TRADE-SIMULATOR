@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+websockets
+httpx
+pydantic
+numpy
+pandas
+scikit-learn
+statsmodels
+aiofiles
+psutil
+python-multipart
