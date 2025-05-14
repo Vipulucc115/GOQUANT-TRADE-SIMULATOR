@@ -18,6 +18,9 @@ interface SimulationResult {
   volatility: number;
   processing_time_ms: number;
   optimal_schedule: number;
+  reg_slippage: number;
+  maker_prob: number;
+  taker_prob: number;
 }
 
 const TradeSimulator: React.FC = () => {
@@ -27,12 +30,14 @@ const TradeSimulator: React.FC = () => {
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [exchange, setExchange] = useState<string>("OKX");
+  const [asset, setAsset] = useState<string>("BTC-USDT-SWAP");
 
   const handleSimulate = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8000/simulate?quantity_usd=${quantity}&order_type=${orderType}&volume_30d=${volume30d}`);
+      const response = await fetch(`http://localhost:8000/simulate?quantity_usd=${quantity}&order_type=${orderType}&volume_30d=${volume30d}&exchange=${exchange}&asset=${asset}`);
       if (!response.ok) {
         throw new Error('Simulation failed');
       }
@@ -64,6 +69,19 @@ const TradeSimulator: React.FC = () => {
           <label>30-Day Volume (USD):</label>
           <input type="number" value={volume30d} onChange={(e) => setVolume30d(Number(e.target.value))} />
         </div>
+        <div className="input-group">
+          <label>Exchange:</label>
+          <select value={exchange} onChange={(e) => setExchange(e.target.value)}>
+            <option value="OKX">OKX</option>
+          </select>
+        </div>
+        <div className="input-group">
+          <label>Asset:</label>
+          <select value={asset} onChange={(e) => setAsset(e.target.value)}>
+            <option value="BTC-USDT-SWAP">BTC-USDT-SWAP</option>
+            <option value="ETH-USDT-SPOT">ETH-USDT-SPOT</option>
+          </select>
+        </div>
         <button onClick={handleSimulate} disabled={loading}>
           {loading ? 'Simulating...' : 'Simulate'}
         </button>
@@ -77,6 +95,7 @@ const TradeSimulator: React.FC = () => {
             <p>Filled Quantity: {result.filled_quantity}</p>
             <p>Average Price: {result.avg_price}</p>
             <p>Slippage: {result.slippage}</p>
+            <p>Regression Slippage: {result.reg_slippage}</p>
             <p>Mid Price: {result.mid_price}</p>
             <p>Fees: {result.fees.fee_amount} ({result.fees.fee_tier})</p>
             <p>Market Impact: {result.market_impact}</p>
@@ -84,6 +103,8 @@ const TradeSimulator: React.FC = () => {
             <p>Volatility: {result.volatility}</p>
             <p>Processing Time: {result.processing_time_ms} ms</p>
             <p>Optimal Schedule: {result.optimal_schedule}</p>
+            <p>Maker Probability: {(result.maker_prob * 100).toFixed(2)}%</p>
+            <p>Taker Probability: {(result.taker_prob * 100).toFixed(2)}%</p>
           </div>
         ) : (
           <div className="output-placeholder">No simulation results yet</div>

@@ -42,7 +42,9 @@ def root():
 async def run_simulation(
     quantity_usd: float = Query(100.0, description="Amount in USD to trade"),
     order_type: Literal["buy", "sell"] = Query("buy", description="Order type (buy/sell)"),
-    volume_30d: float = Query(0.0, description="30-day trading volume for fee tier calculation")
+    volume_30d: float = Query(0.0, description="30-day trading volume for fee tier calculation"),
+    exchange: str = Query("OKX", description="Exchange name (e.g., OKX)"),
+    asset: str = Query("BTC-USDT-SWAP", description="Asset symbol (e.g., BTC-USDT-SWAP)")
 ):
     """
     Simulate a market order and calculate various metrics including:
@@ -54,5 +56,5 @@ async def run_simulation(
     - Volatility
     - Optimal Execution Schedule
     """
-    result = await simulate_market_order(quantity_usd, order_type, volume_30d)
+    result = await simulate_market_order(quantity_usd, order_type, volume_30d, exchange, asset)
     return result
