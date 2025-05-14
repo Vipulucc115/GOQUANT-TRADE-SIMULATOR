@@ -16,10 +16,11 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://*.vercel.app"],  # Allow both local and Vercel deployments
+    allow_origins=["http://localhost:3000", "https://*.vercel.app", "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 logger = logging.getLogger("uvicorn")
