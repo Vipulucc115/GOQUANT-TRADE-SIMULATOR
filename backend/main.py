@@ -5,6 +5,7 @@ import logging
 from utils.websocket_client import connect_to_orderbook
 from simulator import simulate_market_order
 from typing import Literal
+import os
 
 app = FastAPI(
     title="GoQuant Trade Simulator",
@@ -15,7 +16,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React default port
+    allow_origins=["http://localhost:3000", "https://*.vercel.app"],  # Allow both local and Vercel deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,14 +30,8 @@ async def startup_event():
     asyncio.create_task(connect_to_orderbook())  # background task
 
 @app.get("/")
-def root():
-    return {
-        "message": "GoQuant Trade Simulator Backend Running",
-        "endpoints": {
-            "/simulate": "Simulate a market order with various metrics",
-            "/docs": "API documentation"
-        }
-    }
+async def root():
+    return {"message": "GoQuant Trade Simulator API is running"}
 
 @app.get("/simulate")
 async def run_simulation(

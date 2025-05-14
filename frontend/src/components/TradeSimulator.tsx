@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './TradeSimulator.css';
+import config from '../config';
 
 interface SimulationResult {
   order_type: string;
@@ -37,7 +38,7 @@ const TradeSimulator: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8000/simulate?quantity_usd=${quantity}&order_type=${orderType}&volume_30d=${volume30d}&exchange=${exchange}&asset=${asset}`);
+      const response = await fetch(`${config.apiUrl}/simulate?quantity_usd=${quantity}&order_type=${orderType}&volume_30d=${volume30d}&exchange=${exchange}&asset=${asset}`);
       if (!response.ok) {
         throw new Error('Simulation failed');
       }
