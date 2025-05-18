@@ -71,34 +71,68 @@ const TradeSimulator: React.FC = () => {
     }
   };
 
+  const formatValue = (value: number, isPercentage: boolean = false) => {
+    const formatted = isPercentage 
+      ? (value * 100).toFixed(2) + '%'
+      : value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+    
+    return value >= 0 ? (
+      <span className="positive-value">{formatted}</span>
+    ) : (
+      <span className="negative-value">{formatted}</span>
+    );
+  };
+
   return (
     <div className="trade-simulator-container">
       <div className="left-panel">
         <h2>Input Parameters</h2>
         <div className="input-group">
           <label>Quantity (USD):</label>
-          <input type="number" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} />
+          <input 
+            type="number" 
+            value={quantity} 
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            disabled={loading}
+          />
         </div>
         <div className="input-group">
           <label>Order Type:</label>
-          <select value={orderType} onChange={(e) => setOrderType(e.target.value as 'buy' | 'sell')}>
+          <select 
+            value={orderType} 
+            onChange={(e) => setOrderType(e.target.value as 'buy' | 'sell')}
+            disabled={loading}
+          >
             <option value="buy">Buy</option>
             <option value="sell">Sell</option>
           </select>
         </div>
         <div className="input-group">
           <label>30-Day Volume (USD):</label>
-          <input type="number" value={volume30d} onChange={(e) => setVolume30d(Number(e.target.value))} />
+          <input 
+            type="number" 
+            value={volume30d} 
+            onChange={(e) => setVolume30d(Number(e.target.value))}
+            disabled={loading}
+          />
         </div>
         <div className="input-group">
           <label>Exchange:</label>
-          <select value={exchange} onChange={(e) => setExchange(e.target.value)}>
+          <select 
+            value={exchange} 
+            onChange={(e) => setExchange(e.target.value)}
+            disabled={loading}
+          >
             <option value="OKX">OKX</option>
           </select>
         </div>
         <div className="input-group">
           <label>Asset:</label>
-          <select value={asset} onChange={(e) => setAsset(e.target.value)}>
+          <select 
+            value={asset} 
+            onChange={(e) => setAsset(e.target.value)}
+            disabled={loading}
+          >
             <option value="BTC-USDT-SWAP">BTC-USDT-SWAP</option>
             <option value="ETH-USDT-SPOT">ETH-USDT-SPOT</option>
           </select>
@@ -108,27 +142,77 @@ const TradeSimulator: React.FC = () => {
         </button>
         {error && <div className="error">{error}</div>}
       </div>
+      
       <div className="right-panel">
         <h2>Simulation Output</h2>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="loading-spinner"></div>
+          </div>
+        )}
         {result ? (
           <div className="output">
-            <p>Order Type: {result.order_type}</p>
-            <p>Filled Quantity: {result.filled_quantity}</p>
-            <p>Average Price: {result.avg_price}</p>
-            <p>Slippage: {result.slippage}</p>
-            <p>Regression Slippage: {result.reg_slippage}</p>
-            <p>Mid Price: {result.mid_price}</p>
-            <p>Fees: {result.fees.fee_amount} ({result.fees.fee_tier})</p>
-            <p>Market Impact: {result.market_impact}</p>
-            <p>Net Cost: {result.net_cost}</p>
-            <p>Volatility: {result.volatility}</p>
-            <p>Processing Time: {result.processing_time_ms} ms</p>
-            <p>Optimal Schedule: {result.optimal_schedule}</p>
-            <p>Maker Probability: {(result.maker_prob * 100).toFixed(2)}%</p>
-            <p>Taker Probability: {(result.taker_prob * 100).toFixed(2)}%</p>
+            <p>
+              <span>Order Type:</span>
+              <span>{result.order_type.toUpperCase()}</span>
+            </p>
+            <p>
+              <span>Filled Quantity:</span>
+              <span>{formatValue(result.filled_quantity)}</span>
+            </p>
+            <p>
+              <span>Average Price:</span>
+              <span>{formatValue(result.avg_price)}</span>
+            </p>
+            <p>
+              <span>Slippage:</span>
+              <span>{formatValue(result.slippage, true)}</span>
+            </p>
+            <p>
+              <span>Regression Slippage:</span>
+              <span>{formatValue(result.reg_slippage, true)}</span>
+            </p>
+            <p>
+              <span>Mid Price:</span>
+              <span>{formatValue(result.mid_price)}</span>
+            </p>
+            <p>
+              <span>Fees:</span>
+              <span>{formatValue(result.fees.fee_amount)} ({result.fees.fee_tier})</span>
+            </p>
+            <p>
+              <span>Market Impact:</span>
+              <span>{formatValue(result.market_impact, true)}</span>
+            </p>
+            <p>
+              <span>Net Cost:</span>
+              <span>{formatValue(result.net_cost)}</span>
+            </p>
+            <p>
+              <span>Volatility:</span>
+              <span>{formatValue(result.volatility, true)}</span>
+            </p>
+            <p>
+              <span>Processing Time:</span>
+              <span>{result.processing_time_ms} ms</span>
+            </p>
+            <p>
+              <span>Optimal Schedule:</span>
+              <span>{formatValue(result.optimal_schedule)}</span>
+            </p>
+            <p>
+              <span>Maker Probability:</span>
+              <span>{formatValue(result.maker_prob, true)}</span>
+            </p>
+            <p>
+              <span>Taker Probability:</span>
+              <span>{formatValue(result.taker_prob, true)}</span>
+            </p>
           </div>
         ) : (
-          <div className="output-placeholder">No simulation results yet</div>
+          <div className="output-placeholder">
+            {loading ? 'Simulating...' : 'No simulation results yet'}
+          </div>
         )}
       </div>
     </div>
